@@ -14,6 +14,9 @@ carrier_header = sbs_ws["A4"]
 carrier_info = sbs_ws["B4:W4"]
 effective_date = sbs_ws["A6:W6"]
 expiration_date = sbs_ws["A7:W7"]
+aws_destinations = sbs_ws["A9:A33"]
+ripi_destinations = sbs_ws["A35:A58"]
+ipi_destinations = sbs_ws["A60:A117"]
 comm_bullet = sbs_ws["A8:W8"]
 aws_cost = sbs_ws["C4:W33"]
 ripi_cost = sbs_ws["C4:W58"]
@@ -26,6 +29,9 @@ renew_date_dict = {"Renewal Date": None}
 effect_date_dict = {"Effective Date": []}
 expire_date_dict = {"Expiration Date": []}
 comm_bullet_dict = {"Comm Bullet": []}
+aws_dest_dict = {"AWS Destinations": []}
+ripi_dest_dict = {"Ripi Destinations": []}
+ipi_dest_dict = {"IPI Destinations": []}
 aws_cost_dict = {"CMA": [], "CMA-2": [], "COSCO":[], "EMC":[], "Hapag":[], "HMM":[], "HMM-2":[], "MSC":[], "OOCL":[], "ONE":[], "SM Line":[], "YML":[], "ZIM":[], "WHL":[], "WHL-2":[], "Matson":[], "CMA EXX":[], "CULine":[], "CULine-2":[], "CULine-3":[], "Transfar": [], "SeaLead":[]}
 ripi_cost_dict = {"CMA": [], "CMA-2": [], "COSCO":[], "EMC":[], "Hapag":[], "HMM":[], "HMM-2":[], "MSC":[], "OOCL":[], "ONE":[], "SM Line":[], "YML":[], "ZIM":[], "WHL":[], "WHL-2":[], "Matson":[], "CMA EXX":[], "CULine":[], "CULine-2":[], "CULine-3":[], "Transfar": [], "SeaLead":[]}
 ipi_cost_dict = {"CMA": [], "CMA-2": [], "COSCO":[], "EMC":[], "Hapag":[], "HMM":[], "HMM-2":[], "MSC":[], "OOCL":[], "ONE":[], "SM Line":[], "YML":[], "ZIM":[], "WHL":[], "WHL-2":[], "Matson":[], "CMA EXX":[], "CULine":[], "CULine-2":[], "CULine-3":[], "Transfar": [], "SeaLead":[]}
@@ -188,6 +194,62 @@ for row in comm_bullet:
                 count += 1
                     
         count = 1
+
+
+aws_dest_row_count = 0
+aws_dest_count = 0
+for row in aws_destinations:
+    aws_dest_row_count += 1
+
+#this gets the AWS destinations
+for row in aws_destinations:
+    for cell in row:
+        for key in aws_dest_dict:
+            if cell.value != None and cell.value == "Destinations":
+                head_cell = str(cell)
+
+                for number in range(aws_dest_row_count - 1):
+                    if "." in head_cell:
+                        check_str_cell = len(head_cell[head_cell.index(".") + 1:])
+                        if check_str_cell < 4:
+        
+                            str_cell = head_cell
+                            
+                            col_pos = str_cell[-3]
+
+                            row_pos = str_cell[-2]
+                        
+                            next_row_pos = str(int(row_pos) + count)
+
+                            next_cell = sbs_ws[(col_pos + next_row_pos)]
+
+                            cell_value = next_cell.value
+                                
+                            aws_dest_dict["AWS Destinations"].append(cell_value)
+                            count += 1
+                            
+                        else:
+                            str_cell = str(head_cell)
+                            
+                            col_pos = str_cell[-3]
+
+                            row_pos = str_cell[-2]
+
+                            next_row_pos = str(int(row_pos) + count)
+                            
+                            next_cell = sbs_ws[(col_pos + next_row_pos)]
+
+                            cell_value = next_cell.value
+                                
+                            aws_dest_dict["AWS Destinations"].append(cell_value)
+                            count += 1
+                            
+        count = 1
+
+
+
+
+
 aws_row_count = 0
 aws_count = 5
 for row in aws_cost:
@@ -320,7 +382,7 @@ for row in ipi_cost:
         for key in ipi_cost_dict:
             if cell.value != None and cell.value == key:
                 head_cell = str(cell)
-                print(head_cell)
+    
                 head_col_pos = head_cell[-3]
 
                 head_row_pos = head_cell[-2]
@@ -338,7 +400,7 @@ for row in ipi_cost:
                                 if check_str_cell < 4:
                 
                                     str_cell = str(head_next_cell)
-                                    print(str_cell)
+                                
                                     col_pos = str_cell[-3]
 
                                     row_pos = str_cell[-2]
@@ -354,7 +416,7 @@ for row in ipi_cost:
                                     
                                 else:
                                     str_cell = str(head_next_cell)
-                                    print(str_cell)
+                             
                                     col_pos = str_cell[-4]
 
                                     row_pos = str_cell[-3:-1]
@@ -381,4 +443,5 @@ print("Comm Bullet: " + str(comm_bullet_dict) + "\n")
 print("AWS Cost: " + str(aws_cost_dict) + "\n")
 print("Ripi Cost: " + str(ripi_cost_dict) + "\n")
 print("Ipi Cost: " + str(ipi_cost_dict) + "\n")
+print("Destinations: " + str(aws_dest_dict) + "\n")
 print("END")
