@@ -15,8 +15,11 @@ carrier_info = sbs_ws["B4:W4"]
 effective_date = sbs_ws["A6:W6"]
 expiration_date = sbs_ws["A7:W7"]
 aws_destinations = sbs_ws["A9:A33"]
+aws_code = sbs_ws["B9:B33"]
 ripi_destinations = sbs_ws["A35:A58"]
+ripi_code = sbs_ws["B35:B58"]
 ipi_destinations = sbs_ws["A60:A117"]
+ipi_code = sbs_ws["B60:B117"]
 comm_bullet = sbs_ws["A8:W8"]
 aws_cost = sbs_ws["C4:W33"]
 ripi_cost = sbs_ws["C4:W58"]
@@ -30,8 +33,11 @@ effect_date_dict = {"Effective Date": []}
 expire_date_dict = {"Expiration Date": []}
 comm_bullet_dict = {"Comm Bullet": []}
 aws_dest_dict = {"AWS Destinations": []}
+aws_code_dict = {"AWS Code": []}
 ripi_dest_dict = {"Ripi Destinations": []}
+ripi_code_dict = {"Ripi Code": []}
 ipi_dest_dict = {"IPI Destinations": []}
+ipi_code_dict = {"IPI Code": []}
 aws_cost_dict = {"CMA": [], "CMA-2": [], "COSCO":[], "EMC":[], "Hapag":[], "HMM":[], "HMM-2":[], "MSC":[], "OOCL":[], "ONE":[], "SM Line":[], "YML":[], "ZIM":[], "WHL":[], "WHL-2":[], "Matson":[], "CMA EXX":[], "CULine":[], "CULine-2":[], "CULine-3":[], "Transfar": [], "SeaLead":[]}
 ripi_cost_dict = {"CMA": [], "CMA-2": [], "COSCO":[], "EMC":[], "Hapag":[], "HMM":[], "HMM-2":[], "MSC":[], "OOCL":[], "ONE":[], "SM Line":[], "YML":[], "ZIM":[], "WHL":[], "WHL-2":[], "Matson":[], "CMA EXX":[], "CULine":[], "CULine-2":[], "CULine-3":[], "Transfar": [], "SeaLead":[]}
 ipi_cost_dict = {"CMA": [], "CMA-2": [], "COSCO":[], "EMC":[], "Hapag":[], "HMM":[], "HMM-2":[], "MSC":[], "OOCL":[], "ONE":[], "SM Line":[], "YML":[], "ZIM":[], "WHL":[], "WHL-2":[], "Matson":[], "CMA EXX":[], "CULine":[], "CULine-2":[], "CULine-3":[], "Transfar": [], "SeaLead":[]}
@@ -246,9 +252,255 @@ for row in aws_destinations:
                             
         count = 1
 
+#this gets aws_code, same as above:
+aws_code_row_count = 0
+aws_code_count = 0
+for row in aws_code:
+    aws_code_row_count += 1
 
+for row in aws_code:
+    for cell in row:
+        for key in aws_code_dict:
+            if cell.value != None and cell.value == "Code":
+                head_cell = str(cell)
 
+                for number in range(aws_code_row_count - 1):
+                    if "." in head_cell:
+                        check_str_cell = len(head_cell[head_cell.index(".") + 1:])
+                        if check_str_cell < 4:
+        
+                            str_cell = head_cell
+                            
+                            col_pos = str_cell[-3]
 
+                            row_pos = str_cell[-2]
+                        
+                            next_row_pos = str(int(row_pos) + count)
+
+                            next_cell = sbs_ws[(col_pos + next_row_pos)]
+
+                            cell_value = next_cell.value
+                                
+                            aws_code_dict["AWS Code"].append(cell_value)
+                            count += 1
+                            
+                        else:
+                            str_cell = str(head_cell)
+                            
+                            col_pos = str_cell[-3]
+
+                            row_pos = str_cell[-2]
+
+                            next_row_pos = str(int(row_pos) + count)
+                            
+                            next_cell = sbs_ws[(col_pos + next_row_pos)]
+
+                            cell_value = next_cell.value
+                                
+                            aws_code_dict["AWS Code"].append(cell_value)
+                            count += 1
+                            
+        count = 1
+
+#this gets ripi_destinations, same as aws_destinations:
+ripi_dest_row_count = 0
+ripi_dest_count = 0
+for row in ripi_destinations:
+    ripi_dest_row_count += 1
+
+for row in ripi_destinations:
+    for cell in row:
+        for key in ripi_dest_dict:
+            if cell.value != None and cell.value == "Below are all RIPI":
+                head_cell = str(cell)
+
+                for number in range(ripi_dest_row_count - 1):
+                    if "." in head_cell:
+                        check_str_cell = len(head_cell[head_cell.index(".") + 1:])
+                        print(check_str_cell)
+                        if check_str_cell < 16:
+        
+                            str_cell = head_cell
+                            print(str_cell)
+                            col_pos = str_cell[-4]
+
+                            row_pos = str_cell[-3:-1]
+                        
+                            next_row_pos = str(int(row_pos) + count)
+
+                            next_cell = sbs_ws[(col_pos + next_row_pos)]
+
+                            cell_value = next_cell.value
+                                
+                            ripi_dest_dict["Ripi Destinations"].append(cell_value)
+                            count += 1
+                            
+                        else:
+                            str_cell = str(head_cell)
+                            print(str_cell + "else")
+                            col_pos = str_cell[-3]
+
+                            row_pos = str_cell[-2]
+
+                            next_row_pos = str(int(row_pos) + count)
+                            
+                            next_cell = sbs_ws[(col_pos + next_row_pos)]
+
+                            cell_value = next_cell.value
+                                
+                            ripi_dest_dict["Ripi Destinations"].append(cell_value)
+                            count += 1
+                            
+        count = 1
+
+#this gets ripi_code, same as aws_code:
+ripi_code_row_count = 0
+ripi_code_count = 0
+for row in ripi_code:
+    ripi_code_row_count += 1
+for row in ripi_code:
+    for cell in row:
+        for key in ripi_code_dict:
+            if cell.value == None:
+                head_cell = str(cell)
+
+                for number in range(ripi_code_row_count - 1):
+                    if "." in head_cell:
+                        check_str_cell = len(head_cell[head_cell.index(".") + 1:])
+                        if check_str_cell < 16:
+        
+                            str_cell = head_cell
+                            
+                            col_pos = str_cell[-4]
+
+                            row_pos = str_cell[-3:-1]
+                        
+                            next_row_pos = str(int(row_pos) + count)
+
+                            next_cell = sbs_ws[(col_pos + next_row_pos)]
+
+                            cell_value = next_cell.value
+                                
+                            ripi_code_dict["Ripi Code"].append(cell_value)
+                            count += 1
+                            
+                        else:
+                            str_cell = str(head_cell)
+                            
+                            col_pos = str_cell[-3]
+
+                            row_pos = str_cell[-2]
+
+                            next_row_pos = str(int(row_pos) + count)
+                            
+                            next_cell = sbs_ws[(col_pos + next_row_pos)]
+
+                            cell_value = next_cell.value
+                                
+                            ripi_code_dict["Ripi Code"].append(cell_value)
+                            count += 1
+                            
+        count = 1
+
+#this gets ipi_destinations, same as aws_destinations and ripi_destinations:
+ipi_dest_row_count = 0
+ipi_dest_count = 0
+for row in ipi_destinations:
+    ipi_dest_row_count += 1
+
+for row in ipi_destinations:
+    for cell in row:
+        for key in ipi_dest_dict:
+            if cell.value != None and cell.value == "Below are all IPI/MLB":
+                head_cell = str(cell)
+
+                for number in range(ipi_dest_row_count - 1):
+                    if "." in head_cell:
+                        check_str_cell = len(head_cell[head_cell.index(".") + 1:])
+                        if check_str_cell < 16:
+        
+                            str_cell = head_cell
+                            
+                            col_pos = str_cell[-4]
+
+                            row_pos = str_cell[-3:-1]
+                        
+                            next_row_pos = str(int(row_pos) + count)
+
+                            next_cell = sbs_ws[(col_pos + next_row_pos)]
+
+                            cell_value = next_cell.value
+                                
+                            ipi_dest_dict["IPI Destinations"].append(cell_value)
+                            count += 1
+                            
+                        else:
+                            str_cell = str(head_cell)
+                            
+                            col_pos = str_cell[-3]
+
+                            row_pos = str_cell[-2]
+
+                            next_row_pos = str(int(row_pos) + count)
+                            
+                            next_cell = sbs_ws[(col_pos + next_row_pos)]
+
+                            cell_value = next_cell.value
+                                
+                            ipi_dest_dict["IPI Destinations"].append(cell_value)
+                            count += 1
+                            
+        count = 1
+
+#this gets ipi_code, same as aws_code and ripi_code:
+ipi_code_row_count = 0
+ipi_code_count = 0
+for row in ipi_code:
+    ipi_code_row_count += 1
+
+for row in ipi_code:
+    for cell in row:
+        for key in ipi_code_dict:
+            if cell.value == None:
+                head_cell = str(cell)
+
+                for number in range(ipi_code_row_count - 1):
+                    if "." in head_cell:
+                        check_str_cell = len(head_cell[head_cell.index(".") + 1:])
+                        if check_str_cell < 16:
+        
+                            str_cell = head_cell
+                            
+                            col_pos = str_cell[-4]
+
+                            row_pos = str_cell[-3:-1]
+                        
+                            next_row_pos = str(int(row_pos) + count)
+
+                            next_cell = sbs_ws[(col_pos + next_row_pos)]
+
+                            cell_value = next_cell.value
+                                
+                            ipi_code_dict["IPI Code"].append(cell_value)
+                            count += 1
+                            
+                        else:
+                            str_cell = str(head_cell)
+                            
+                            col_pos = str_cell[-3]
+
+                            row_pos = str_cell[-2]
+
+                            next_row_pos = str(int(row_pos) + count)
+                            
+                            next_cell = sbs_ws[(col_pos + next_row_pos)]
+
+                            cell_value = next_cell.value
+                                
+                            ipi_code_dict["IPI Code"].append(cell_value)
+                            count += 1
+                            
+        count = 1
 
 aws_row_count = 0
 aws_count = 5
@@ -443,5 +695,10 @@ print("Comm Bullet: " + str(comm_bullet_dict) + "\n")
 print("AWS Cost: " + str(aws_cost_dict) + "\n")
 print("Ripi Cost: " + str(ripi_cost_dict) + "\n")
 print("Ipi Cost: " + str(ipi_cost_dict) + "\n")
-print("Destinations: " + str(aws_dest_dict) + "\n")
+print("AWS Destinations: " + str(aws_dest_dict) + "\n")
+print("AWS Codes: " + str(aws_code_dict) + "\n")
+print("Ripi Destinations: " + str(ripi_dest_dict) + "\n")
+print("Ripi Codes: " + str(ripi_code_dict) + "\n")
+print("Ipi Destinations: " + str(ipi_dest_dict) + "\n")
+print("Ipi Codes: " + str(ipi_code_dict) + "\n")
 print("END")
