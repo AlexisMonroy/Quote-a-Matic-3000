@@ -317,11 +317,11 @@ for row in ripi_destinations:
                 for number in range(ripi_dest_row_count - 1):
                     if "." in head_cell:
                         check_str_cell = len(head_cell[head_cell.index(".") + 1:])
-                        print(check_str_cell)
+                    
                         if check_str_cell < 16:
         
                             str_cell = head_cell
-                            print(str_cell)
+      
                             col_pos = str_cell[-4]
 
                             row_pos = str_cell[-3:-1]
@@ -337,7 +337,7 @@ for row in ripi_destinations:
                             
                         else:
                             str_cell = str(head_cell)
-                            print(str_cell + "else")
+    
                             col_pos = str_cell[-3]
 
                             row_pos = str_cell[-2]
@@ -574,7 +574,7 @@ for row in ripi_cost:
         for key in ripi_cost_dict:
             if cell.value != None and cell.value == key:
                 head_cell = str(cell)
-                print(head_cell)
+        
                 head_col_pos = head_cell[-3]
 
                 head_row_pos = head_cell[-2]
