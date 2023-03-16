@@ -610,6 +610,7 @@ ripi_code_row_count = 0
 ripi_code_count = 0
 for row in ripi_code:
     ripi_code_row_count += 1
+    
 for row in ripi_code:
     for cell in row:
         for key in ripi_code_dict:
@@ -957,7 +958,7 @@ print("Ripi Destinations: " + str(ripi_dest_dict) + "\n")
 print("Ripi Codes: " + str(ripi_code_dict) + "\n")
 print("Ipi Destinations: " + str(ipi_dest_dict) + "\n")
 print("Ipi Codes: " + str(ipi_code_dict) + "\n")
-print("END")
+
 
 #open a new notepad file and save to "C:\Users\amonroy.lax\Documents\dev\py_text"
 with open("C:/Users/amonroy.lax/Documents/dev/py_text/readme.txt", "w") as f:
@@ -1008,8 +1009,28 @@ with open("C:/Users/amonroy.lax/Documents/dev/py_text/readme.txt", "w") as f:
 
     f.close()
 
-#save the above notepad file to "C:\Users\amonroy.lax\Documents\dev\py_text":
+#save the above notepad file to "C:\Users\amonroy.lax\Documents\dev\py_text"
+with open("C:/Users/amonroy.lax/Documents/dev/py_text/readme.txt", "r") as f:
+    data = f.read()
+    lines = data.splitlines()
+    words = data.split()
+    len_lines = len(lines)
+    len_words = len(words)
+    str_lines = str(len_lines)
+    str_words = str(len_words)
+    f.close()
 
+    print("Number of lines: " + str_lines)
+    print("Number of words: " + str_words)
+
+with open("C:/Users/amonroy.lax/Documents/dev/py_text/readme.txt", "a") as f:
+    f.write("Number of lines: " + str_lines)
+    f.write("\n")
+    f.write("Number of words: " + str_words)
+    f.write("\n")
+    f.close()
+
+print("END")
 
 
 

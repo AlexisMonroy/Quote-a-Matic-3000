@@ -4,10 +4,20 @@ import datetime
 
 print("STARTING")
 count = 1
+
+#open and load file, select OF sheet, search header portion
+wb = load_workbook(filename='Acme Furniture 2022 Feb 1- 14.xlsx', data_only=True)
 sbs = load_workbook(filename= 'sbs.xlsx', data_only=True)
+ws = wb.active
+sbs_ws = sbs["1. CBP_40HC"]
+sheet_headers = ws["A4:J9"]
+fcl_table = ws["A10:J27"]
+of_table = ws["L10:AB26"]
+dray_table = ws["N10:R26"]
+arb_table = ws["X10:AC27"]
 
 sbs_ws = sbs["1. CBP_40HC"]
-sheet_header = sbs_ws["A1"]
+sbs_header = sbs_ws["A1"]
 renew_date = sbs_ws["A2"]
 rep_info = sbs_ws["B2:W2"]
 carrier_header = sbs_ws["A4"]
@@ -24,6 +34,17 @@ comm_bullet = sbs_ws["A8:W8"]
 aws_cost = sbs_ws["C4:W33"]
 ripi_cost = sbs_ws["C4:W58"]
 ipi_cost = sbs_ws["C4:W117"]
+
+
+#list of header dictionaries
+
+header_list = ["Attn:", "Company:", "Company Email:", "From:", "Date:", "Email:", "EFFECTIVE GATE IN:", "to", "COMMODITY:"]
+
+header_dict = {"Attn": None, "Company": None, "Company_Email": None, "From": None, "Date": None, "Email": None, "Effective_Gate_In": None, "Expires": None, "COMMODITY": None}
+dray_dict = {"Chassis": [], "I/H": [], "I/H Inclusive notes": [], "Live unload / Drop Pick": [], "Drayage quote# / expire date": []}
+of_dict = {"CARRIERS": [], "CY or RAMP": [], "COST 20'": [], "COST 40'": [], "COST 40HQ": [], "COST 45'": [], "PROFIT": [], "Other Per Cntr": []}
+arb_dict = {"ARB COST 20'": [], "ARB COST 40'": [], "ARB COST 40HQ": [], "ARB COST 45'": [], "REMARKS": []}
+sell_dict = {"ORIGIN": [], "DESTINATION": [], "MODE": [], "TIER": [], "CHASSIS": [], "20'": [], "40'": [], "HQ'": [], "45'": [], "REMARKS": []}
 
 sbs_header_dict = {"Sheet": None}
 rep_dict = {"Rep":[]}
@@ -42,9 +63,240 @@ aws_cost_dict = {"CMA": [], "CMA-2": [], "COSCO":[], "EMC":[], "Hapag":[], "HMM"
 ripi_cost_dict = {"CMA": [], "CMA-2": [], "COSCO":[], "EMC":[], "Hapag":[], "HMM":[], "HMM-2":[], "MSC":[], "OOCL":[], "ONE":[], "SM Line":[], "YML":[], "ZIM":[], "WHL":[], "WHL-2":[], "Matson":[], "CMA EXX":[], "CULine":[], "CULine-2":[], "CULine-3":[], "Transfar": [], "SeaLead":[]}
 ipi_cost_dict = {"CMA": [], "CMA-2": [], "COSCO":[], "EMC":[], "Hapag":[], "HMM":[], "HMM-2":[], "MSC":[], "OOCL":[], "ONE":[], "SM Line":[], "YML":[], "ZIM":[], "WHL":[], "WHL-2":[], "Matson":[], "CMA EXX":[], "CULine":[], "CULine-2":[], "CULine-3":[], "Transfar": [], "SeaLead":[]}
 
-#this gets the header
-if sheet_header.value != None:
-    header = sheet_header.value
+
+
+for row in sheet_headers:
+    for cell in row:
+        if cell.value != None and cell.value in header_list:
+            #print(cell.value)
+            str_cell = str(cell)
+
+                        #Convert col letter to int equivalent
+            col_pos = ord(str_cell[-3])
+
+                        #get row position
+            row_pos = str_cell[-2]
+
+                        #get next column position
+            next_col_pos = chr(col_pos + 1)
+
+                        #get next cell position
+            next_cell = ws[(next_col_pos + row_pos)]
+
+                        #returns <CELL '020123'.B5> as string. I think i was going to use this to parse. Not sure anymore.
+                        #str_next_cell = str(next_cell)
+
+                        #Store the value of next_cell, which should be value of the header
+            cell_value = next_cell.value
+
+            #check whether cell.value matches dictionary key
+            for key in header_dict:
+                cell_append = cell.value[:-1]
+                #case switch statement that checks if cell.value matches "Company_Email" or "Effective_Gate_In" or "Expires"
+                if cell.value == "Company Email:":
+                    header_dict.update({"Company_Email": next_cell.value})
+                elif cell.value == "EFFECTIVE GATE IN:":
+                    cell_date_time = str(next_cell.value)
+                    header_dict.update({"Effective_Gate_In": cell_date_time})
+                elif cell.value == "to":
+                    cell_date_time = str(next_cell.value)
+                    header_dict.update({"Expires": cell_date_time})
+                elif cell_append == key:
+                    #print(key)
+                    header_dict.update({key: next_cell.value})
+                elif cell.value == "Date:":
+                    cell_date_time = str(next_cell.value)
+                    header_dict.update({"Date": cell_date_time})
+            #print(cell_value)
+#row stuff
+
+row_amount = 0
+row_count = 0
+dray_row_amount = 0
+arb_row_amount = 0        
+for row in fcl_table:
+    row_amount += 1
+for row in dray_table:
+    dray_row_amount += 1
+for row in arb_table:
+    arb_row_amount += 1
+
+#sell_rate section
+for row in fcl_table:
+    for cell in row:
+        for key in sell_dict:
+            for number in range(row_amount - 2):
+                if cell.value != None and cell.value == key:
+                    #checks for chassis header
+                    if key == "CHASSIS":
+                        #print("found it")
+                        str_cell = str(cell)
+                        #print(str_cell)
+                        col_pos = str_cell[-4]
+                        #print(col_pos)
+                        row_pos = str_cell[-3:-1]
+                        #print(row_pos)
+                        next_row_pos = str(int(row_pos) + count)
+                        #print(next_row_pos)
+                        next_cell = ws[(col_pos + next_row_pos)]
+                        #print(next_cell)
+                        cell_value = next_cell.value
+                        #print(cell_value)
+
+                        #section below gets the number of chassis days
+                        chassis_str_cell = str(cell)
+                        #print(chassis_str_cell)
+                                            #Convert col letter to int equivalent
+                        chassis_col_pos = ord(chassis_str_cell[-4])
+                        #print(chassis_col_pos)
+                                            #get row position
+                        chassis_row_pos = chassis_str_cell[-3:-1]
+                        #print(chassis_row_pos)
+
+                        chassis_next_row_pos = str(int(chassis_row_pos) + count)
+                        #print(chassis_next_row_pos)
+                                            #get next column position
+                        chassis_next_col_pos = chr(chassis_col_pos + 1)
+                        #print(chassis_next_col_pos)
+                                            #get next cell position
+                        chassis_next_cell = ws[(chassis_next_col_pos + chassis_next_row_pos)]
+                        #print(chassis_next_cell)
+
+                        chassis_cell_value = chassis_next_cell.value[:6]
+                        #print(chassis_cell_value)
+                        chassis = cell_value +' '+ chassis_cell_value
+
+                        sell_dict[key].append(chassis)
+                        count += 1
+                    
+                    else:
+                        #sell_dict[key].append(cell_value)
+                        str_cell = str(cell)
+                        #print(str_cell)
+                        col_pos = str_cell[-4]
+                        #print(col_pos)
+                        row_pos = str_cell[-3:-1]
+                        #print(row_pos)
+                        next_row_pos = str(int(row_pos) + count)
+                        #print(next_row_pos)
+                        next_cell = ws[(col_pos + next_row_pos)]
+                        #print(next_cell)
+                        cell_value = next_cell.value
+                        #print(cell_value)
+                        sell_dict[key].append(cell_value)
+                        count += 1
+                        #print("done")
+                
+            count = 1
+
+#this section is for cost
+for row in of_table:
+    for cell in row:
+        for key in of_dict:
+            for number in range(row_amount - 2):
+                if cell.value != None and cell.value == key:
+                    #print("done")
+                    str_cell = str(cell)
+                    #search for "." in str_cell
+                    if "." in str_cell:
+                        check_str_cell = len(str_cell[str_cell.index(".") + 1:])
+                        if check_str_cell > 4:
+
+                            #print(str_cell)
+                            col_pos = str_cell[-5:-3]
+                            #print(col_pos)
+                            row_pos = str_cell[-3:-1]
+                            #print(row_pos)
+                            next_row_pos = str(int(row_pos) + count)
+                            #print(next_row_pos)
+                            next_cell = ws[(col_pos + next_row_pos)]
+                            #print(next_cell)
+                            cell_value = next_cell.value
+                            #print(cell_value)
+                            of_dict[key].append(cell_value)
+                            count += 1
+                        else:
+                            #print(str_cell)
+                            col_pos = str_cell[-4]
+                            #print(col_pos)
+                            row_pos = str_cell[-3:-1]
+                            #print(row_pos)
+                            next_row_pos = str(int(row_pos) + count)
+                            #print(next_row_pos)
+                            next_cell = ws[(col_pos + next_row_pos)]
+                            #print(next_cell)
+                            cell_value = next_cell.value
+                            #print(cell_value)
+                            of_dict[key].append(cell_value)
+                            count += 1
+            count = 1
+
+#this section is for dray
+for row in dray_table:
+    for cell in row:
+        for key in dray_dict:
+            for number in range(dray_row_amount - 2):
+                if cell.value != None and cell.value == key:
+                    str_cell = str(cell)
+                    #print(str_cell)
+                    col_pos = str_cell[-4]
+                    #print(col_pos)
+                    row_pos = str_cell[-3:-1]
+                    #print(row_pos)
+                    next_row_pos = str(int(row_pos) + count)
+                    #print(next_row_pos)
+                    next_cell = ws[(col_pos + next_row_pos)]
+                    #print(next_cell)
+                    cell_value = next_cell.value
+                    #print(cell_value)
+                    dray_dict[key].append(cell_value)
+                    count += 1
+            count = 1
+
+#this section is for arb
+for row in arb_table:
+    for cell in row:
+        for key in arb_dict:
+            for number in range(arb_row_amount - 2):
+                if cell.value != None and cell.value == key:
+                    #print("done")
+                    str_cell = str(cell)
+                    #search for "." in str_cell
+                    if "." in str_cell:
+                        check_str_cell = len(str_cell[str_cell.index(".") + 1:])
+                        if check_str_cell > 4:
+
+                            #print(str_cell)
+                            col_pos = str_cell[-5:-3]
+                            #print(col_pos)
+                            row_pos = str_cell[-3:-1]
+                            #print(row_pos)
+                            next_row_pos = str(int(row_pos) + count)
+                            #print(next_row_pos)
+                            next_cell = ws[(col_pos + next_row_pos)]
+                            #print(next_cell)
+                            cell_value = next_cell.value
+                            #print(cell_value)
+                            arb_dict[key].append(cell_value)
+                            count += 1
+                        else:
+                            #print(str_cell)
+                            col_pos = str_cell[-4]
+                            #print(col_pos)
+                            row_pos = str_cell[-3:-1]
+                            #print(row_pos)
+                            next_row_pos = str(int(row_pos) + count)
+                            #print(next_row_pos)
+                            next_cell = ws[(col_pos + next_row_pos)]
+                            #print(next_cell)
+                            cell_value = next_cell.value
+                            #print(cell_value)
+                            arb_dict[key].append(cell_value)
+                            count += 1
+            count = 1
+
+if sbs_header.value != None:
+    header = sbs_header.value
     sbs_header_dict.update({"Sheet": header})
 
 #this gets the renewal date
@@ -319,9 +571,9 @@ for row in ripi_destinations:
                         check_str_cell = len(head_cell[head_cell.index(".") + 1:])
                     
                         if check_str_cell < 16:
-                          
+        
                             str_cell = head_cell
-                          
+      
                             col_pos = str_cell[-4]
 
                             row_pos = str_cell[-3:-1]
@@ -336,7 +588,6 @@ for row in ripi_destinations:
                             count += 1
                             
                         else:
-                      
                             str_cell = str(head_cell)
     
                             col_pos = str_cell[-3]
@@ -359,6 +610,7 @@ ripi_code_row_count = 0
 ripi_code_count = 0
 for row in ripi_code:
     ripi_code_row_count += 1
+    
 for row in ripi_code:
     for cell in row:
         for key in ripi_code_dict:
@@ -685,8 +937,12 @@ for row in ipi_cost:
                                     
                 count = 1
                 
-
-print("Sheet Header: " + str(sbs_header_dict) + "\n")
+print("HEADER: " + str(header_dict) + "\n")
+print("SELL PRICE: " + str(sell_dict) + "\n")
+print("COST PRICE: " + str(of_dict) + "\n")
+print("DRAY: " + str(dray_dict) + "\n")
+print("ARB: " + str(arb_dict) + "\n")
+print("Sheet Header: " + str(header_dict) + "\n")
 print("Renewal Date: " + str(renew_date_dict) + "\n")
 print("Reps:\n" + str(rep_dict) + "\n")
 print("Carriers:\n" + str(carrier_dict) + "\n")
@@ -703,8 +959,20 @@ print("Ripi Codes: " + str(ripi_code_dict) + "\n")
 print("Ipi Destinations: " + str(ipi_dest_dict) + "\n")
 print("Ipi Codes: " + str(ipi_code_dict) + "\n")
 
+
+#open a new notepad file and save to "C:\Users\amonroy.lax\Documents\dev\py_text"
 with open("C:/Users/amonroy.lax/Documents/dev/py_text/readme.txt", "w") as f:
-    f.write("Sheet Header: " + str(sbs_header_dict) + "\n")
+    f.write("HEADER: " + str(header_dict) + "\n")
+    f.write("\n")
+    f.write("SELL PRICE: " + str(sell_dict) + "\n")
+    f.write("\n")
+    f.write("COST PRICE: " + str(of_dict) + "\n")
+    f.write("\n")
+    f.write("DRAY: " + str(dray_dict) + "\n")
+    f.write("\n")
+    f.write("ARB: " + str(arb_dict) + "\n")
+    f.write("\n")
+    f.write("Sheet Header: " + str(header_dict) + "\n")
     f.write("\n")
     f.write("Renewal Date: " + str(renew_date_dict) + "\n")
     f.write("\n")
@@ -739,10 +1007,10 @@ with open("C:/Users/amonroy.lax/Documents/dev/py_text/readme.txt", "w") as f:
     f.write("END")
     f.write("\n")
 
-    f.close()    
+    f.close()
 
-#open readmeCOPY.txt and count the number of lines and the number of words in the file:
-with open("C:/Users/amonroy.lax/Documents/dev/py_text/readme.txt", "r") as f:
+#save the above notepad file to "C:\Users\amonroy.lax\Documents\dev\py_text"
+with open("C:/Users/amonroy.lax/Documents/dev/py_text/readme_COPY.txt", "r") as f:
     data = f.read()
     lines = data.splitlines()
     words = data.split()
@@ -751,11 +1019,11 @@ with open("C:/Users/amonroy.lax/Documents/dev/py_text/readme.txt", "r") as f:
     str_lines = str(len_lines)
     str_words = str(len_words)
     f.close()
-    
+
     print("Number of lines: " + str_lines)
     print("Number of words: " + str_words)
 
-with open("C:/Users/amonroy.lax/Documents/dev/py_text/readme.txt", "a") as f:
+with open("C:/Users/amonroy.lax/Documents/dev/py_text/readme_COPY.txt", "a") as f:
     f.write("Number of lines: " + str_lines)
     f.write("\n")
     f.write("Number of words: " + str_words)
@@ -763,3 +1031,6 @@ with open("C:/Users/amonroy.lax/Documents/dev/py_text/readme.txt", "a") as f:
     f.close()
 
 print("END")
+
+
+
